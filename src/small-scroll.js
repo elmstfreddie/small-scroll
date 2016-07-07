@@ -1,4 +1,6 @@
-var smallScroll = (function() {
+(function(smallScroll) {
+    typeof exports === "object" ? module.exports = smallScroll() : window.smallScroll = smallScroll();
+})(function(smallScroll) {
     smallScroll = {};
     smallScroll.easeFunctions = {
         linear: function linear(t) { return t },
@@ -19,6 +21,9 @@ var smallScroll = (function() {
     smallScroll.options = {
         easeFunction: smallScroll.easeFunctions.easeOutQuart,
         easeTime: 800,
+        // easeTime: function(diff, currentPos, targetTop) {
+        //     return Math.abs(diff);
+        // },
         interval: 10,
         maintainHashURL: true,
     };
@@ -71,20 +76,20 @@ var smallScroll = (function() {
         return startY + (desiredY - startY) * distanceFraction;
     }
 
-    function startScrolling(easingFunction, targetTop, callback) {
+    function startScrolling(easeTime, easingFunction, targetTop, callback) {
         clearInterval(currentScrolling);
 
         var startT = Date.now();
         currentScrolling = setInterval(function() {
             var tDiff = Date.now() - startT;
 
-            if (tDiff >= smallScroll.options.easeTime || targetTop === window.pageYOffset) {
+            if (tDiff >= easeTime || targetTop === window.pageYOffset) {
                 clearInterval(currentScrolling);
                 window.scrollTo(0, targetTop);
 
                 callback();
             } else {
-                window.scrollTo(0, easingFunction(tDiff, smallScroll.options.easeTime));
+                window.scrollTo(0, easingFunction(tDiff, easeTime));
             }
         }, smallScroll.options.interval);
     }
@@ -103,7 +108,9 @@ var smallScroll = (function() {
         var easingFunction = getNextEasePosition.bind(this, currentPos, targetTop);
         var callback = doneScrolling.bind(this, target);
 
-        startScrolling(easingFunction, targetTop, callback);
+        var easeTime = typeof smallScroll.options.easeTime === "function" ? smallScroll.options.easeTime(targetTop - currentPos, currentPos, targetTop) : smallScroll.options.easeTime;
+
+        startScrolling(easeTime, easingFunction, targetTop, callback);
     }
 
     function registerScrollEvent(anchor, targetId) {
@@ -114,4 +121,4 @@ var smallScroll = (function() {
     }
 
     return smallScroll;
-})(smallScroll || {});
+});
