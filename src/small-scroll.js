@@ -2,6 +2,9 @@
     typeof exports === "object" ? module.exports = smallScroll() : window.smallScroll = smallScroll();
 })(function(smallScroll) {
     smallScroll = {};
+    /*
+     * see: https://gist.github.com/gre/1650294
+     */
     smallScroll.easeFunctions = {
         linear: function linear(t) { return t },
         easeInQuad: function easeInQuad(t) { return t*t },
